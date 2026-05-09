@@ -116,6 +116,110 @@ app.delete('/api/backlog/:id', (req, res) => {
   }
 });
 
+// Completion rate by genre
+app.get('/api/stats/completion-by-genre', (req, res) => {
+  try {
+    const stats = db.prepare(`
+      SELECT 
+        genre,
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+        ROUND(
+          100.0 * SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) / COUNT(*), 1
+        ) as completion_rate
+      FROM backlog
+      WHERE genre IS NOT NULL
+      GROUP BY genre
+      ORDER BY completion_rate DESC
+    `).all();
+    res.json(stats);
+  } catch (error) {
+    console.error('Stats error:', error);
+    res.status(500).json({ error: 'Failed to get stats' });
+  }
+});
+
+// Average personal rating by platform
+app.get('/api/stats/rating-by-platform', (req, res) => {
+  try {
+    const stats = db.prepare(`
+      SELECT 
+        platform,
+        ROUND(AVG(personal_rating), 1) as avg_rating,
+        COUNT(*) as total_rated
+      FROM backlog
+      WHERE personal_rating IS NOT NULL
+      GROUP BY platform
+      ORDER BY avg_rating DESC
+    `).all();
+    res.json(stats);
+  } catch (error) {
+    console.error('Stats error:', error);
+    res.status(500).json({ error: 'Failed to get stats' });
+  }
+});
+
+// Backlog growth rate — games added vs completed per week
+app.get('/api/stats/growth-rate', (req, res) => {
+  try {
+    const stats = db.prepare(`
+      SELECT
+        strftime('%Y-%W', added_at) as week,
+        COUNT(*) as added,
+        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed
+      FROM backlog
+      GROUP BY week
+      ORDER BY week ASC
+    `).all();
+    res.json(stats);
+  } catch (error) {
+    console.error('Stats error:', error);
+    res.status(500).json({ error: 'Failed to get stats' });
+  }
+});
+
+// Most abandoned genre
+app.get('/api/stats/abandoned-genre', (req, res) => {
+  try {
+    const stats = db.prepare(`
+      SELECT
+        genre,
+        COUNT(*) as dropped_count
+      FROM backlog
+      WHERE status = 'dropped'
+        AND genre IS NOT NULL
+      GROUP BY genre
+      ORDER BY dropped_count DESC
+      LIMIT 1
+    `).all();
+    res.json(stats);
+  } catch (error) {
+    console.error('Stats error:', error);
+    res.status(500).json({ error: 'Failed to get stats' });
+  }
+});
+
+// Overall summary numbers
+app.get('/api/stats/summary', (req, res) => {
+  try {
+    const stats = db.prepare(`
+      SELECT
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+        SUM(CASE WHEN status = 'currently_playing' THEN 1 ELSE 0 END) as playing,
+        SUM(CASE WHEN status = 'want_to_play' THEN 1 ELSE 0 END) as want_to_play,
+        SUM(CASE WHEN status = 'dropped' THEN 1 ELSE 0 END) as dropped,
+        ROUND(AVG(personal_rating), 1) as avg_rating,
+        SUM(hours_played) as total_hours
+      FROM backlog
+    `).get();
+    res.json(stats);
+  } catch (error) {
+    console.error('Stats error:', error);
+    res.status(500).json({ error: 'Failed to get stats' });
+  }
+});
+
 // app.listen always goes last
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

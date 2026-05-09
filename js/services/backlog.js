@@ -35,3 +35,39 @@ export function filterByStatus(games, status) {
   if (status === 'all') return games;
   return games.filter(game => game.status === status);
 }
+
+// Stats functions — all live in service layer
+export async function fetchCompletionByGenre() {
+  const response = await fetch(
+    'http://localhost:3000/api/stats/completion-by-genre'
+  );
+  return await response.json();
+}
+
+export async function fetchRatingByPlatform() {
+  const response = await fetch(
+    'http://localhost:3000/api/stats/rating-by-platform'
+  );
+  return await response.json();
+}
+
+export async function fetchGrowthRate() {
+  const response = await fetch(
+    'http://localhost:3000/api/stats/growth-rate'
+  );
+  return await response.json();
+}
+
+export async function fetchAbandonedGenre() {
+  const response = await fetch(
+    'http://localhost:3000/api/stats/abandoned-genre'
+  );
+  return await response.json();
+}
+
+export async function fetchSummary() {
+  const response = await fetch(
+    'http://localhost:3000/api/stats/summary'
+  );
+  return await response.json();
+}

@@ -1,2 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameLog — Stats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/stats.css">
+</head>
+<body>
+
+  <nav>
+    <span class="logo">🎮 GameLog</span>
+    <div class="nav-links">
+      <a href="index.html">Search</a>
+      <a href="backlog.html">My Backlog</a>
+      <a href="stats.html" class="active">Stats</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1 class="page-title">Your Gaming Stats</h1>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid" id="summary-grid">
+      <div class="summary-card">
+        <span class="summary-label">Total Games</span>
+        <span class="summary-value" id="stat-total">—</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Completed</span>
+        <span class="summary-value" id="stat-completed">—</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Currently Playing</span>
+        <span class="summary-value" id="stat-playing">—</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Avg Rating</span>
+        <span class="summary-value" id="stat-rating">—</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Total Hours</span>
+        <span class="summary-value" id="stat-hours">—</span>
+      </div>
+    </div>
+
+    <!-- Completion by Genre -->
+    <div class="stat-section">
+      <h2 class="stat-section-title">Completion Rate by Genre</h2>
+      <p class="stat-description">
+        Do you actually finish games or just start them?
+      </p>
+      <div id="genre-stats" class="stat-bars">
+        <p class="loading">Loading...</p>
+      </div>
+    </div>
+
+    <!-- Rating by Platform -->
+    <div class="stat-section">
+      <h2 class="stat-section-title">Average Rating by Platform</h2>
+      <p class="stat-description">
+        Which platform gives you the best experience?
+      </p>
+      <div id="platform-stats" class="stat-bars">
+        <p class="loading">Loading...</p>
+      </div>
+    </div>
+
+    <!-- Most Abandoned Genre -->
+    <div class="stat-section">
+      <h2 class="stat-section-title">Most Abandoned Genre</h2>
+      <p class="stat-description">
+        What do you keep convincing yourself you'll go back to?
+      </p>
+      <div id="abandoned-stats">
+        <p class="loading">Loading...</p>
+      </div>
+    </div>
+
+    <!-- Backlog Growth -->
+    <div class="stat-section">
+      <h2 class="stat-section-title">Backlog Growth by Week</h2>
+      <p class="stat-description">
+        Are you adding games faster than you finish them?
+      </p>
+      <div id="growth-stats" class="stat-bars">
+        <p class="loading">Loading...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="js/controllers/stats-handlers.js"></script>
+</body>
+</html>
+
 <link rel="stylesheet" href="css/global.css">
 <link rel="stylesheet" href="css/stats.css">
