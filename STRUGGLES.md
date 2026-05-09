@@ -44,3 +44,24 @@ rating.
 What got me stuck: This phase went smoothly. The main thing I had to pay attention to was making sure I had actual data in my backlog before testing 
 
 How I solved it: Added several games, updated their statuses to completed and dropped, and added personal ratings before testing the stats page.
+## Phase 4 — UI Improvements
+
+What I did: Added status and platform dropdowns to game cards on the search page, and replaced the prompt-based edit system with a real modal featuring a rating slider.
+
+What got me stuck:
+1 TypeError: Cannot read properties of null (addEventListener) → Event listeners were being attached to modal elements before the DOM finished loading. Fixed by wrapping all modal event listeners inside a DOMContentLoaded block
+2 Duplicate event listeners → When fixing the DOMContentLoaded issue, old event listeners were left above the new block causing them to run twice. Fixed by removing all duplicates and keeping one clean version
+3 Modal rendering unstyled at bottom of page → Modal CSS wasn't loading because backlog.css link was missing or modal HTML was in wrong place in the document
+4 Dropdown options getting clipped → Game card had overflow: hidden which cut off the dropdown options list. Fixed by changing to overflow: visible
+5 Phase 4 commit done late → Some UI improvements were debugged across multiple sessions and the commit came after it should have
+
+How I solved it: 
+1 TypeError addEventListener.JS ran before HTML existed. Fixed by wrapping everything in DOMContentLoaded.
+
+2 Duplicate event listeners Old listeners weren't deleted when we added the fix. Fixed by cleaning the whole file and keeping one version.
+
+3 Modal unstyled Missing CSS for the modal select element. Fixed by adding .modal .card-select styles to backlog.css.
+
+4 Dropdown clipped Game card had overflow: hidden cutting off the dropdown. Fixed by changing to overflow: visible.
+
+5 Late commit Debugging ran long across sessions. Committed phase 4 work late but history is still intact.
