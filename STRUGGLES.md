@@ -35,3 +35,12 @@ What got me stuck:
 How I solved it: 
 Rewrote the entire server.js in the correct 
 order — all requires at the top first, then database setup, then middleware, then all routes, then app.listen last. 
+## Phase 4
+
+What I did: Built the stats layer with 5 computed statistics — completion rate by genre, average rating by platform, most 
+abandoned genre, backlog growth rate by week, and an overall summary dashboard with total games, hours played and average 
+rating.
+
+What got me stuck: This phase went smoothly. The main thing I had to pay attention to was making sure I had actual data in my backlog before testing 
+
+How I solved it: Added several games, updated their statuses to completed and dropped, and added personal ratings before testing the stats page.
