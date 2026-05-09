@@ -1,5 +1,6 @@
-const BASE_URL = 'http://localhost:3000/api';
-
+const BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000/api'
+  : `${window.location.origin}/api`;
 // All RAWG calls go through this file only
 export async function searchGames(query) {
   try {

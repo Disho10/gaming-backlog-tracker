@@ -5,6 +5,11 @@ import {
   deleteGame 
 } from '../data/db.js';
 
+// Dynamic base URL — works locally and in production
+const STATS_BASE = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000/api/stats'
+  : `${window.location.origin}/api/stats`;
+
 // Add game — business logic lives here
 export async function addToBacklog(gameData) {
   if (!gameData.rawg_id || !gameData.title) {
@@ -39,35 +44,35 @@ export function filterByStatus(games, status) {
 // Stats functions — all live in service layer
 export async function fetchCompletionByGenre() {
   const response = await fetch(
-    'http://localhost:3000/api/stats/completion-by-genre'
+    `${STATS_BASE}/completion-by-genre`
   );
   return await response.json();
 }
 
 export async function fetchRatingByPlatform() {
   const response = await fetch(
-    'http://localhost:3000/api/stats/rating-by-platform'
+    `${STATS_BASE}/rating-by-platform`
   );
   return await response.json();
 }
 
 export async function fetchGrowthRate() {
   const response = await fetch(
-    'http://localhost:3000/api/stats/growth-rate'
+    `${STATS_BASE}/growth-rate`
   );
   return await response.json();
 }
 
 export async function fetchAbandonedGenre() {
   const response = await fetch(
-    'http://localhost:3000/api/stats/abandoned-genre'
+    `${STATS_BASE}/abandoned-genre`
   );
   return await response.json();
 }
 
 export async function fetchSummary() {
   const response = await fetch(
-    'http://localhost:3000/api/stats/summary'
+    `${STATS_BASE}/summary`
   );
   return await response.json();
 }

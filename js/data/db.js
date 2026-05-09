@@ -1,4 +1,6 @@
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000/api'
+  : `${window.location.origin}/api`;
 
 // Add game to backlog
 export async function addGameToBacklog(gameData) {

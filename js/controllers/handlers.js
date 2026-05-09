@@ -13,14 +13,15 @@ async function handleSearch() {
 
 // Add to backlog handler
 window.addToBacklog = async function(
-  rawgId, title, coverArt, genre, platform
+  rawgId, title, coverArt, genre, platform, status
 ) {
   const result = await addToBacklog({
     rawg_id: rawgId,
     title: title,
     cover_art: coverArt,
     genre: genre,
-    platform: platform
+    platform: platform,
+    status: status || 'want_to_play'
   });
 
   if (result.error) {

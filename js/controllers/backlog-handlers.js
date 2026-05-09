@@ -6,12 +6,12 @@ import {
 } from '../services/backlog.js';
 
 let allGames = [];
+let currentEditId = null;
 
 // Load and display backlog
 async function loadBacklog() {
   document.getElementById('backlog-list').innerHTML = 
     '<p class="loading">Loading your backlog...</p>';
-  
   allGames = await fetchBacklog();
   renderList('all');
 }
@@ -32,15 +32,33 @@ function renderList(status) {
       <img src="${game.cover_art || ''}" alt="${game.title}"/>
       <div class="backlog-item-info">
         <h3>${game.title}</h3>
-        <p class="text-muted">${game.genre || ''} • ${game.platform || ''}</p>
+        <p class="text-muted">
+          ${game.genre || ''} • ${game.platform || ''}
+        </p>
         <span class="badge badge-${getBadgeClass(game.status)}">
           ${formatStatus(game.status)}
         </span>
+        ${game.personal_rating ? 
+          `<span class="text-muted" style="font-size:0.8rem">
+            ⭐ ${game.personal_rating}/10
+          </span>` : ''
+        }
+        ${game.hours_played ? 
+          `<span class="text-muted" style="font-size:0.8rem">
+            🕐 ${game.hours_played}h
+          </span>` : ''
+        }
       </div>
       <div class="backlog-item-actions">
         <button 
           class="btn btn-sm btn-primary"
-          onclick="window.editGame(${game.id}, '${game.status}', ${game.personal_rating || 0}, ${game.hours_played || 0})"
+          onclick="window.openEditModal(
+            ${game.id}, 
+            '${game.title.replace(/'/g, "\\'")}',
+            '${game.status}',
+            ${game.personal_rating || 0},
+            ${game.hours_played || 0}
+          )"
         >
           Edit
         </button>
@@ -76,6 +94,23 @@ function formatStatus(status) {
   return map[status] || status;
 }
 
+// Open edit modal
+window.openEditModal = function(id, title, status, rating, hours) {
+  currentEditId = id;
+  document.getElementById('modal-game-title').textContent = title;
+  document.getElementById('modal-status').value = status;
+  document.getElementById('modal-rating').value = rating;
+  document.getElementById('rating-display').textContent = `${rating}/10`;
+  document.getElementById('modal-hours').value = hours;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+// Close modal
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  currentEditId = null;
+}
+
 // Delete game
 window.deleteGame = async function(id) {
   if (!confirm('Remove this game from your backlog?')) return;
@@ -85,43 +120,63 @@ window.deleteGame = async function(id) {
   renderList(activeTab.dataset.status);
 }
 
-// Edit game
-window.editGame = async function(id, status, rating, hours) {
-  const newStatus = prompt(
-    'Status? (want_to_play / currently_playing / completed / dropped)',
-    status
-  );
-  if (!newStatus) return;
+// Everything that touches the DOM goes inside DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
 
-  const newRating = prompt('Personal rating? (1-10)', rating);
-  const newHours = prompt('Hours played?', hours);
+  // Rating slider live update
+  document.getElementById('modal-rating')
+    .addEventListener('input', (e) => {
+      document.getElementById('rating-display').textContent = 
+        `${e.target.value}/10`;
+    });
 
-  await updateGameDetails(id, {
-    status: newStatus,
-    personal_rating: parseInt(newRating) || null,
-    hours_played: parseInt(newHours) || 0
+  // Save from modal
+  document.getElementById('modal-save')
+    .addEventListener('click', async () => {
+      const status = document.getElementById('modal-status').value;
+      const rating = parseInt(document.getElementById('modal-rating').value);
+      const hours = parseInt(document.getElementById('modal-hours').value) || 0;
+
+      await updateGameDetails(currentEditId, {
+        status,
+        personal_rating: rating || null,
+        hours_played: hours
+      });
+
+      allGames = allGames.map(g => g.id === currentEditId ? {
+        ...g, status, personal_rating: rating, hours_played: hours
+      } : g);
+
+      const activeTab = document.querySelector('.filter-tab.active');
+      renderList(activeTab.dataset.status);
+      closeModal();
+    });
+
+  // Close modal triggers
+  document.getElementById('modal-close')
+    .addEventListener('click', closeModal);
+
+  document.getElementById('modal-cancel')
+    .addEventListener('click', closeModal);
+
+  document.getElementById('modal-overlay')
+    .addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal-overlay')) {
+        closeModal();
+      }
+    });
+
+  // Filter tabs
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab')
+        .forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderList(tab.dataset.status);
+    });
   });
 
-  allGames = allGames.map(g => g.id === id ? {
-    ...g,
-    status: newStatus,
-    personal_rating: parseInt(newRating) || null,
-    hours_played: parseInt(newHours) || 0
-  } : g);
+  // Load backlog last
+  loadBacklog();
 
-  const activeTab = document.querySelector('.filter-tab.active');
-  renderList(activeTab.dataset.status);
-}
-
-// Filter tabs
-document.querySelectorAll('.filter-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.filter-tab')
-      .forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    renderList(tab.dataset.status);
-  });
 });
-
-// Load on page open
-loadBacklog();
