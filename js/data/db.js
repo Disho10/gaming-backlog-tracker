@@ -2,7 +2,6 @@ const BASE_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:3000/api'
   : `${window.location.origin}/api`;
 
-// Add game to backlog
 export async function addGameToBacklog(gameData) {
   try {
     const response = await fetch(`${BASE_URL}/backlog`, {
@@ -17,7 +16,6 @@ export async function addGameToBacklog(gameData) {
   }
 }
 
-// Get all backlog entries
 export async function getBacklog() {
   try {
     const response = await fetch(`${BASE_URL}/backlog`);
@@ -28,7 +26,6 @@ export async function getBacklog() {
   }
 }
 
-// Update a game
 export async function updateGame(id, updateData) {
   try {
     const response = await fetch(`${BASE_URL}/backlog/${id}`, {
@@ -43,7 +40,6 @@ export async function updateGame(id, updateData) {
   }
 }
 
-// Delete a game
 export async function deleteGame(id) {
   try {
     const response = await fetch(`${BASE_URL}/backlog/${id}`, {
