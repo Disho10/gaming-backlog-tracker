@@ -65,3 +65,20 @@ How I solved it:
 4 Dropdown clipped Game card had overflow: hidden cutting off the dropdown. Fixed by changing to overflow: visible.
 
 5 Late commit Debugging ran long across sessions. Committed phase 4 work late but history is still intact.
+
+## Phase 5 — Bug Fixes
+
+What I did: Fixed status not saving correctly when adding a game, replaced browser alerts and confirms with custom 
+toast notifications and modals, added platform selection on game cards, and made top 30 games load by default.
+
+What got me stuck:
+ 
+1 The status selected in the dropdown was not being saved to the database because the POST route in server.js was not extracting status from req.body and not including it in the INSERT statement. The status was arriving correctly from the frontend but being silently ignored.
+
+2 The custom dropdown dataset.value was not updating when an option was clicked because the click event was bubbling up to the document listener and closing the dropdown before selectOption could run. 
+
+3 The browser default confirm and alert were replaced with custom modals and toast notifications for a better user experience.
+
+How I solved it: 
+Added status to the destructured req.body and included it in the SQL INSERT statement in server.js. Fixed the dropdown by passing the event object explicitly to selectOption and toggleDropdown and calling event.stopPropagation() to prevent bubbling.
+
