@@ -17,3 +17,14 @@ export async function searchGames(query) {
     return [];
   }
 }
+
+export async function getTopGames() {
+  try {
+    const response = await fetch(`${BASE_URL}/games/top`);
+    if (!response.ok) throw new Error('Failed to fetch top games');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching top games:', error);
+    return [];
+  }
+}

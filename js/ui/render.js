@@ -24,9 +24,11 @@ export function renderGameCards(games) {
 
             <div class="custom-select-wrapper">
               <label class="select-label">Status</label>
-              <div class="custom-select" id="status-wrap-${game.id}">
+              <div class="custom-select" 
+                id="status-wrap-${game.id}" 
+                data-value="want_to_play">
                 <div class="custom-select-trigger" 
-                  onclick="toggleDropdown('status-wrap-${game.id}')">
+                  onclick="toggleDropdown(event, 'status-wrap-${game.id}')">
                   <span>Want to Play</span>
                   <svg width="12" height="12" viewBox="0 0 24 24" 
                     fill="none" stroke="currentColor" stroke-width="2">
@@ -36,22 +38,22 @@ export function renderGameCards(games) {
                 <div class="custom-options">
                   <div class="custom-option selected" 
                     data-value="want_to_play"
-                    onclick="selectOption('status-wrap-${game.id}', 'want_to_play', 'Want to Play')">
+                    onclick="selectOption(event, 'status-wrap-${game.id}', 'want_to_play', 'Want to Play')">
                     Want to Play
                   </div>
                   <div class="custom-option" 
                     data-value="currently_playing"
-                    onclick="selectOption('status-wrap-${game.id}', 'currently_playing', 'Currently Playing')">
+                    onclick="selectOption(event, 'status-wrap-${game.id}', 'currently_playing', 'Currently Playing')">
                     Currently Playing
                   </div>
                   <div class="custom-option" 
                     data-value="completed"
-                    onclick="selectOption('status-wrap-${game.id}', 'completed', 'Completed')">
+                    onclick="selectOption(event, 'status-wrap-${game.id}', 'completed', 'Completed')">
                     Completed
                   </div>
                   <div class="custom-option" 
                     data-value="dropped"
-                    onclick="selectOption('status-wrap-${game.id}', 'dropped', 'Dropped')">
+                    onclick="selectOption(event, 'status-wrap-${game.id}', 'dropped', 'Dropped')">
                     Dropped
                   </div>
                 </div>
@@ -60,9 +62,11 @@ export function renderGameCards(games) {
 
             <div class="custom-select-wrapper">
               <label class="select-label">Platform</label>
-              <div class="custom-select" id="platform-wrap-${game.id}">
+              <div class="custom-select" 
+                id="platform-wrap-${game.id}"
+                data-value="${platforms[0]}">
                 <div class="custom-select-trigger"
-                  onclick="toggleDropdown('platform-wrap-${game.id}')">
+                  onclick="toggleDropdown(event, 'platform-wrap-${game.id}')">
                   <span>${platforms[0]}</span>
                   <svg width="12" height="12" viewBox="0 0 24 24" 
                     fill="none" stroke="currentColor" stroke-width="2">
@@ -73,7 +77,7 @@ export function renderGameCards(games) {
                   ${platforms.map((p, i) => `
                     <div class="custom-option ${i === 0 ? 'selected' : ''}"
                       data-value="${p}"
-                      onclick="selectOption('platform-wrap-${game.id}', '${p}', '${p}')">
+                      onclick="selectOption(event, 'platform-wrap-${game.id}', '${p}', '${p}')">
                       ${p}
                     </div>
                   `).join('')}
@@ -88,8 +92,8 @@ export function renderGameCards(games) {
                 '${game.name.replace(/'/g, "\\'")}',
                 '${game.background_image}',
                 '${game.genres?.[0]?.name || 'Unknown'}',
-                document.querySelector('#platform-wrap-${game.id} .custom-select-trigger span').textContent,
-                document.querySelector('#status-wrap-${game.id}').dataset.value
+                document.getElementById('platform-wrap-${game.id}').dataset.value,
+                document.getElementById('status-wrap-${game.id}').dataset.value
               )"
             >
               + Add to Backlog
@@ -107,18 +111,18 @@ export function showLoading(containerId) {
     <p class="loading">Searching...</p>
   `;
 }
-// Custom dropdown toggle
-window.toggleDropdown = function(wrapperId) {
+
+window.toggleDropdown = function(event, wrapperId) {
+  event.stopPropagation();
   const wrapper = document.getElementById(wrapperId);
-  const allDropdowns = document.querySelectorAll('.custom-select.open');
-  allDropdowns.forEach(d => {
-    if (d.id !== wrapperId) d.classList.remove('open');
-  });
-  wrapper.classList.toggle('open');
+  const isOpen = wrapper.classList.contains('open');
+  document.querySelectorAll('.custom-select.open')
+    .forEach(d => d.classList.remove('open'));
+  if (!isOpen) wrapper.classList.add('open');
 }
 
-// Custom dropdown select option
-window.selectOption = function(wrapperId, value, label) {
+window.selectOption = function(event, wrapperId, value, label) {
+  event.stopPropagation();
   const wrapper = document.getElementById(wrapperId);
   wrapper.dataset.value = value;
   wrapper.querySelector('.custom-select-trigger span').textContent = label;
@@ -135,3 +139,13 @@ document.addEventListener('click', (e) => {
       .forEach(d => d.classList.remove('open'));
   }
 });
+
+// Toast notification
+export function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = `toast ${type} show`;
+  setTimeout(() => {
+    toast.className = 'toast';
+  }, 3000);
+}

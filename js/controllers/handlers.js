@@ -1,8 +1,7 @@
-import { searchGames } from '../api/rawg.js';
-import { renderGameCards, showLoading } from '../ui/render.js';
+import { searchGames, getTopGames } from '../api/rawg.js';
+import { renderGameCards, showLoading, showToast } from '../ui/render.js';
 import { addToBacklog } from '../services/backlog.js';
 
-// Search handler
 async function handleSearch() {
   const query = document.getElementById('search-input').value.trim();
   if (!query) return;
@@ -11,10 +10,19 @@ async function handleSearch() {
   renderGameCards(games);
 }
 
-// Add to backlog handler
+// Load top games on page open
+async function loadTopGames() {
+  showLoading('search-results');
+  const games = await getTopGames();
+  renderGameCards(games);
+}
+
 window.addToBacklog = async function(
   rawgId, title, coverArt, genre, platform, status
 ) {
+  console.log('STATUS RECEIVED:', status);
+  console.log('PLATFORM RECEIVED:', platform);
+  
   const result = await addToBacklog({
     rawg_id: rawgId,
     title: title,
@@ -25,13 +33,12 @@ window.addToBacklog = async function(
   });
 
   if (result.error) {
-    alert(result.error);
+    showToast(result.error, 'error');
   } else {
-    alert(`"${title}" added to your backlog!`);
+    showToast(`"${title}" added to your backlog!`, 'success');
   }
 }
 
-// Event listeners
 document.getElementById('search-btn')
   .addEventListener('click', handleSearch);
 
@@ -39,3 +46,6 @@ document.getElementById('search-input')
   .addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleSearch();
   });
+
+// Load top games when page opens
+loadTopGames();

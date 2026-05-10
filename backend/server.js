@@ -53,8 +53,7 @@ app.get('/api/games/search', async (req, res) => {
 // Add game to backlog
 app.post('/api/backlog', (req, res) => {
   try {
-    const { rawg_id, title, cover_art, genre, platform } = req.body;
-
+    const { rawg_id, title, cover_art, genre, platform, status } = req.body;
     const existing = db.prepare(
       'SELECT id FROM backlog WHERE rawg_id = ?'
     ).get(rawg_id);
@@ -63,11 +62,11 @@ app.post('/api/backlog', (req, res) => {
       return res.status(400).json({ error: 'Game already in backlog' });
     }
 
-    const stmt = db.prepare(`
-      INSERT INTO backlog (rawg_id, title, cover_art, genre, platform)
-      VALUES (?, ?, ?, ?, ?)
-    `);
-    stmt.run(rawg_id, title, cover_art, genre, platform);
+   const stmt = db.prepare(`
+  INSERT INTO backlog (rawg_id, title, cover_art, genre, platform, status)
+  VALUES (?, ?, ?, ?, ?, ?)
+`);
+stmt.run(rawg_id, title, cover_art, genre, platform, status || 'want_to_play');
     res.json({ success: true, message: 'Game added to backlog' });
   } catch (error) {
     console.error('Add to backlog error:', error);
@@ -217,6 +216,20 @@ app.get('/api/stats/summary', (req, res) => {
   } catch (error) {
     console.error('Stats error:', error);
     res.status(500).json({ error: 'Failed to get stats' });
+  }
+});
+
+// Get top games by default
+app.get('/api/games/top', async (req, res) => {
+  try {
+    const response = await fetch(
+      `https://api.rawg.io/api/games?ordering=-rating&page_size=30&key=${process.env.RAWG_API_KEY}`
+    );
+    const data = await response.json();
+    res.json(data.results);
+  } catch (error) {
+    console.error('Top games error:', error);
+    res.status(500).json({ error: 'Failed to fetch top games' });
   }
 });
 

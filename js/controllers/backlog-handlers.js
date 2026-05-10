@@ -7,8 +7,8 @@ import {
 
 let allGames = [];
 let currentEditId = null;
+let currentDeleteId = null;
 
-// Load and display backlog
 async function loadBacklog() {
   document.getElementById('backlog-list').innerHTML = 
     '<p class="loading">Loading your backlog...</p>';
@@ -16,7 +16,6 @@ async function loadBacklog() {
   renderList('all');
 }
 
-// Render filtered list
 function renderList(status) {
   const filtered = filterByStatus(allGames, status);
   const container = document.getElementById('backlog-list');
@@ -64,7 +63,7 @@ function renderList(status) {
         </button>
         <button 
           class="btn btn-sm btn-danger"
-          onclick="window.deleteGame(${game.id})"
+          onclick="window.openConfirmModal(${game.id})"
         >
           Remove
         </button>
@@ -73,7 +72,6 @@ function renderList(status) {
   `).join('');
 }
 
-// Helper functions
 function getBadgeClass(status) {
   const map = {
     want_to_play: 'want',
@@ -94,7 +92,7 @@ function formatStatus(status) {
   return map[status] || status;
 }
 
-// Open edit modal
+// Edit modal
 window.openEditModal = function(id, title, status, rating, hours) {
   currentEditId = id;
   document.getElementById('modal-game-title').textContent = title;
@@ -105,32 +103,32 @@ window.openEditModal = function(id, title, status, rating, hours) {
   document.getElementById('modal-overlay').classList.add('open');
 }
 
-// Close modal
-function closeModal() {
+function closeEditModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   currentEditId = null;
 }
 
-// Delete game
-window.deleteGame = async function(id) {
-  if (!confirm('Remove this game from your backlog?')) return;
-  await removeFromBacklog(id);
-  allGames = allGames.filter(g => g.id !== id);
-  const activeTab = document.querySelector('.filter-tab.active');
-  renderList(activeTab.dataset.status);
+// Confirm delete modal
+window.openConfirmModal = function(id) {
+  currentDeleteId = id;
+  document.getElementById('confirm-overlay').classList.add('open');
 }
 
-// Everything that touches the DOM goes inside DOMContentLoaded
+function closeConfirmModal() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  currentDeleteId = null;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
-  // Rating slider live update
+  // Rating slider
   document.getElementById('modal-rating')
     .addEventListener('input', (e) => {
       document.getElementById('rating-display').textContent = 
         `${e.target.value}/10`;
     });
 
-  // Save from modal
+  // Save edit
   document.getElementById('modal-save')
     .addEventListener('click', async () => {
       const status = document.getElementById('modal-status').value;
@@ -149,20 +147,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const activeTab = document.querySelector('.filter-tab.active');
       renderList(activeTab.dataset.status);
-      closeModal();
+      closeEditModal();
     });
 
-  // Close modal triggers
+  // Close edit modal
   document.getElementById('modal-close')
-    .addEventListener('click', closeModal);
-
+    .addEventListener('click', closeEditModal);
   document.getElementById('modal-cancel')
-    .addEventListener('click', closeModal);
-
+    .addEventListener('click', closeEditModal);
   document.getElementById('modal-overlay')
     .addEventListener('click', (e) => {
       if (e.target === document.getElementById('modal-overlay')) {
-        closeModal();
+        closeEditModal();
+      }
+    });
+
+  // Confirm delete
+  document.getElementById('confirm-delete-btn')
+    .addEventListener('click', async () => {
+      await removeFromBacklog(currentDeleteId);
+      allGames = allGames.filter(g => g.id !== currentDeleteId);
+      const activeTab = document.querySelector('.filter-tab.active');
+      renderList(activeTab.dataset.status);
+      closeConfirmModal();
+    });
+
+  // Cancel delete
+  document.getElementById('confirm-cancel-btn')
+    .addEventListener('click', closeConfirmModal);
+  document.getElementById('confirm-overlay')
+    .addEventListener('click', (e) => {
+      if (e.target === document.getElementById('confirm-overlay')) {
+        closeConfirmModal();
       }
     });
 
@@ -176,7 +192,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Load backlog last
   loadBacklog();
-
 });
